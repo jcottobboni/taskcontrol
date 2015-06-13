@@ -1,0 +1,125 @@
+<%aux = 1%>
+
+<div style="text-align: right;">
+<button class="btn btn-lg btn-primary btn-add-panel">
+    <i class="glyphicon glyphicon-plus"></i> Cadastrar Tarefa
+</button>
+</div>
+<br>
+<br>
+<div class="panel-group" id="accordion">
+ <% @tasks.each do |task| %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse<%=aux%>">
+          <%= task.name %> #<%=aux%>  - </a>
+          <button class="btn btn-xs btn-edit-panel">
+            <i class="glyphicon glyphicon-pencil"></i>
+          </button>
+        
+      </h4>
+    </div>
+    <div id="collapse<%=aux%>" class="panel-collapse collapse out">
+      <div class="panel-body">
+        <table class="table table-bordered" style="text-align:center;">
+        <tr>
+        <td>Inicio</td>
+        <td>Conclusão</td>
+        </tr>
+         <tr>
+        <td><%= task.start_date.strftime("%d/%m/%Y") unless task.start_date.nil? %></td>
+        <td><%= task.end_date.strftime("%d/%m/%Y") unless task.end_date.nil? %></td>
+        </tr>
+        </table>
+        <table class="table" style="text-align:center;"> 
+        <tr>
+          <td>Custo Estimado</td>
+          <td>Status da Tarefa</td>
+        </tr>
+        <tr>
+        <td><%= number_to_currency(task.cost,:precision=>2) %></td>
+        <td><%= task.status %></td>
+        </tr>
+        </table>
+      
+
+          <hr>
+          <h4><span class="glyphicon glyphicon-comment" aria-hidden="true"> Comentários</h4>
+          <table>
+          <% task.comments.each do |comment| %>
+          <tr>
+             <td> <strong><%= comment.user.name%></strong> </td>
+              <td><%= link_to comment_path(comment), method: :delete, data: { confirm: 'Você tem certeza?' }  do %>
+              <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 
+              <% end %>
+              </td>
+           </tr>
+          <tr>
+          <td></td>
+          <td>
+              <br />
+              <p><%= comment.body %></p>
+              <p><i><%= comment.created_at.strftime("comentado %d/%B/%Y") %></i></p>
+              <hr>
+          </td>
+          </tr>
+            
+          <% end %>
+          </table>
+          <%= form_for(@comment) do |f| %>
+            <%= f.hidden_field :task_id,:value=>task.id %> 
+            <div class="field">
+            <%= f.hidden_field :user_id,:value=>current_user.id %> 
+            </div>
+            <div class="field">
+              <%= f.text_area :body ,:placeholder=>"Comentário"%>
+            </div>
+            <div class="actions">
+              <%= button_tag(type: 'submit', class: "btn btn-primary") do %>
+                <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Enviar Comenário
+              <% end %>
+            </div>
+          <% end %>
+      </div>
+    </div>
+  </div>
+  <%aux+=1%>
+  <%end%>
+  <div class="panel panel-default template" style="display: none;">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+        </a>
+      </h4>
+    </div>
+    <div id="collapseThree" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <%= render 'form' %>
+      </div>
+    </div>
+  </div>
+</div>
+<br />
+
+
+<script type="text/javascript">
+  var $template = $(".template");
+var hash = <%=@tasks.size%>;
+$(".btn-add-panel").on("click", function () {
+    var $newPanel = $template.clone();
+    $newPanel.find(".collapse").attr("in");
+    $newPanel.find(".accordion-toggle").attr("href",  "#" + (++hash))
+             .text("Nova Tarefa #" + hash);
+    $newPanel.find(".panel-collapse").attr("id", hash).addClass("collapse");
+    $("#accordion").append($newPanel.fadeIn());
+});
+$(".btn-edit-panel").on("click", function () {
+    var $newPanel = $template.clone();
+    $newPanel.find(".collapse").attr("in");
+    $newPanel.find(".accordion-toggle").attr("href",  "#" + (++hash))
+             .text("Editar tarefa ");
+    $newPanel.find(".panel-collapse").attr("id", hash).addClass("collapse");
+    $("#accordion").append($newPanel.fadeIn());
+});
+</script>

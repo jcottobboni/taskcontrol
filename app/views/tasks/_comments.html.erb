@@ -1,0 +1,12 @@
+<%=task.comments.each do |comment|%>
+<p>
+  <strong>User:</strong>
+  <%= comment.user_id %>
+</p>
+
+<p>
+  <strong>Body:</strong>
+  <%= comment.body %>
+</p>
+<%end%>
+
